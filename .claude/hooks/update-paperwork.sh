@@ -40,27 +40,50 @@ if [ ! -f HANDOFF.md ]; then
   exit 0
 fi
 
-handoff_mtime=$(stat -c %Y HANDOFF.md 2>/dev/null || stat -f %m HANDOFF.md 2>/dev/null || echo 0)
-head_commit_time=$(git log -1 --format=%ct 2>/dev/null || echo 0)
+# Freshness check via git history, not filesystem mtime. File mtime can be
+# seconds older than commit time even when the file is part of that same
+# commit, which previously caused false-positive blocks.
+#
+# HANDOFF.md is considered fresh if EITHER:
+#   - it has uncommitted (staged or unstaged) modifications, OR
+#   - there are zero commits since the most recent commit that touched it
+#     (i.e., it was updated in the last commit or nothing has changed since).
+head_commit=$(git rev-parse HEAD 2>/dev/null || echo "")
+last_handoff_commit=$(git log -1 --format=%H -- HANDOFF.md 2>/dev/null || echo "")
+handoff_uncommitted=$(git status --porcelain -- HANDOFF.md 2>/dev/null | wc -l | tr -d ' ')
+
+if [ -z "$last_handoff_commit" ] && [ "${handoff_uncommitted:-0}" -eq 0 ]; then
+  echo '{"continue": false, "stopReason": "HANDOFF.md is untracked and unmodified. Commit it or run /handoff before ending the session."}'
+  exit 0
+fi
+
+commits_since_handoff=0
+if [ -n "$last_handoff_commit" ] && [ -n "$head_commit" ]; then
+  commits_since_handoff=$(git rev-list --count "${last_handoff_commit}..${head_commit}" 2>/dev/null || echo 0)
+  commits_since_handoff=$(echo "$commits_since_handoff" | tr -d ' ')
+fi
 
 # Uncommitted changes outside paperwork. `cut -c4-` is safe for paths with
 # spaces; `awk '{print $NF}'` would only grab the last whitespace-separated token.
+# `.claude/scheduled_tasks.lock` is runtime state from the ScheduleWakeup system.
 uncommitted=$(git status --porcelain 2>/dev/null \
   | cut -c4- \
   | grep -v '^HANDOFF\.md$' \
   | grep -v '^PROGRESS\.md$' \
   | grep -v '^\.claude/hooks/log\.txt$' \
+  | grep -v '^\.claude/scheduled_tasks\.lock$' \
   | wc -l | tr -d ' ')
 
-# Block: uncommitted real work exists and handoff is older than the last commit.
-if [ "${uncommitted:-0}" -gt 0 ] && [ "$handoff_mtime" -lt "$head_commit_time" ]; then
+# Block: real uncommitted work exists and HANDOFF.md has neither uncommitted
+# edits nor was touched in the latest commits.
+if [ "${uncommitted:-0}" -gt 0 ] && [ "${handoff_uncommitted:-0}" -eq 0 ] && [ "${commits_since_handoff:-0}" -gt 0 ]; then
   echo '{"continue": false, "stopReason": "Uncommitted changes exist and HANDOFF.md is older than the latest commit. Run /handoff before ending the session so the next session knows where to resume."}'
   exit 0
 fi
 
-# Block: handoff is older than the most recent commit → commits happened without
-# refreshing the session snapshot.
-if [ "$handoff_mtime" -lt "$head_commit_time" ]; then
+# Block: commits landed since HANDOFF.md was last refreshed and the current
+# HANDOFF.md has no fresh edits waiting to be committed.
+if [ "${handoff_uncommitted:-0}" -eq 0 ] && [ "${commits_since_handoff:-0}" -gt 0 ]; then
   echo '{"continue": false, "stopReason": "HANDOFF.md is older than the most recent commit. Run /handoff before ending the session to capture state for the next session."}'
   exit 0
 fi

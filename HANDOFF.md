@@ -1,7 +1,7 @@
 # Handoff — 2026-04-23
 
 **Branch:** feat/harden-workbench-hooks-and-protection
-**Status:** All required CI checks green on PR #16. CodeRabbit + Gemini follow-up review in progress on the fix commit. Branch protection on `main` is **live** (`enforce_admins: false`). Ready to squash-merge once bot follow-up lands with no new blockers.
+**Status:** All required CI checks green on PR #16. Branch protection on `main` live (`enforce_admins: false`). Found and fixed two more bugs in my own Stop hook: (a) mtime-vs-commit-time comparison false-positived when HANDOFF.md was written seconds before its own commit — switched to `git log -1 HANDOFF.md` + uncommitted check; (b) `.claude/scheduled_tasks.lock` from the ScheduleWakeup system was counting as uncommitted work — added to `.gitignore` and to the hook's filter list. CodeRabbit follow-up review still pending on prior commits.
 
 ## Goal
 Turn the scaffold into an actual quality gate. Five harness-only fixes + branch protection on `main`.
