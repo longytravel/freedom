@@ -9,7 +9,7 @@ Living checklist of milestones. Tick items as they ship.
 - [ ] Initial commit on main pushed
 - [ ] First CI run green
 - [ ] Branch protection applied
-- [ ] CodeRabbit installed
+- [x] Gemini Code Assist installed (replaces CodeRabbit — free, 33 reviews/day)
 - [ ] Throwaway PR #1 merged (proves the loop)
 
 ## Fire Forex — Product (future)

@@ -24,7 +24,7 @@ The user is **not a coder**. The system is the quality gate, not them. Every rul
 1. Invoke `superpowers:verification-before-completion` before claiming done.
 2. All five test categories must pass locally.
 3. Run the `code-review` skill on the diff; paste output in the PR body.
-4. Open PR; wait for green CI + CodeRabbit advisory comment.
+4. Open PR; wait for green CI + Gemini Code Assist advisory review comment.
 5. Squash-merge, delete branch.
 
 ## Forbidden
