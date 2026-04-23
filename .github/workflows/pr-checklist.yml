@@ -25,12 +25,15 @@ jobs:
               problems.push("Code-review skill output was not pasted into the PR body.");
             }
 
-            // At least one checklist item in the Self-review section must be ticked.
-            const parts = body.split(/^##\s+Self-review checklist/m);
-            const section = parts.length > 1 ? parts[1] : "";
+            // Bound the section strictly between its heading and the next ## heading
+            // so trailing content (e.g., the code-review output section) cannot inflate counts.
+            const afterHeading = body.split(/^##\s+Self-review checklist\s*$/m)[1] || "";
+            const section = afterHeading.split(/^##\s+/m)[0] || "";
             const total = (section.match(/^\s*-\s*\[[ xX]\]/gm) || []).length;
             const checked = (section.match(/^\s*-\s*\[[xX]\]/gm) || []).length;
-            if (total > 0 && checked === 0) {
+            if (total === 0) {
+              problems.push("Self-review checklist section is missing or empty — cannot merge without it.");
+            } else if (checked === 0) {
               problems.push(`Self-review checklist has ${total} items but none are ticked. Work through the list before requesting review.`);
             }
 

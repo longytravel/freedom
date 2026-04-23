@@ -19,7 +19,7 @@ RECENT_COMMITS=$(git log --oneline -10 2>/dev/null || echo "_not a git repo_")
 CURRENT_BRANCH=$(git branch --show-current 2>/dev/null || echo "_unknown_")
 STATUS=$(git status --short 2>/dev/null || echo "")
 
-CONTEXT=$(cat <<EOF
+CONTEXT=$(cat <<SESSION_START_EOF
 # Session start — paperwork snapshot
 
 **Current branch:** ${CURRENT_BRANCH}
@@ -47,7 +47,7 @@ ${STATUS:-"(clean)"}
 ---
 
 If HANDOFF.md says mid-stream work is in progress, **finish it before starting anything new**.
-EOF
+SESSION_START_EOF
 )
 
 # Emit JSON with additionalContext. Use python for safe JSON escaping.

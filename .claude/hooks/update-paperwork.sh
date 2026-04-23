@@ -13,8 +13,17 @@ echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) stop-hook fired" >> "$LOG" 2>/dev/null || t
 
 # Read stdin (JSON from Claude Code). If stop_hook_active is true we are
 # already in a continuation loop — allow stop to avoid infinite re-entry.
+# Use Python for robust JSON parsing; grep on JSON is fragile across whitespace
+# and nesting.
 INPUT=$(cat 2>/dev/null || echo '{}')
-if printf '%s' "$INPUT" | grep -q '"stop_hook_active"[[:space:]]*:[[:space:]]*true'; then
+is_reentry() {
+  printf '%s' "$INPUT" | python -c 'import json,sys
+try:
+    sys.exit(0 if json.load(sys.stdin).get("stop_hook_active") else 1)
+except Exception:
+    sys.exit(1)' 2>/dev/null
+}
+if is_reentry; then
   echo '{"continue": true}'
   exit 0
 fi
@@ -34,9 +43,10 @@ fi
 handoff_mtime=$(stat -c %Y HANDOFF.md 2>/dev/null || stat -f %m HANDOFF.md 2>/dev/null || echo 0)
 head_commit_time=$(git log -1 --format=%ct 2>/dev/null || echo 0)
 
-# Uncommitted changes outside paperwork.
+# Uncommitted changes outside paperwork. `cut -c4-` is safe for paths with
+# spaces; `awk '{print $NF}'` would only grab the last whitespace-separated token.
 uncommitted=$(git status --porcelain 2>/dev/null \
-  | awk '{print $NF}' \
+  | cut -c4- \
   | grep -v '^HANDOFF\.md$' \
   | grep -v '^PROGRESS\.md$' \
   | grep -v '^\.claude/hooks/log\.txt$' \
