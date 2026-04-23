@@ -1,33 +1,35 @@
 # Handoff — 2026-04-23
 
 **Branch:** feat/harden-workbench-hooks-and-protection
-**Status:** PR #16 open. CodeRabbit + Gemini reviewed and between them found 5 real bugs (two security-rated deny-pattern bypasses, a checklist-workflow bypass, two shell-fragility bugs, an unsafe heredoc). All five fixed in a follow-up commit. Branch protection not yet applied (awaiting user decision on `enforce_admins`).
+**Status:** All required CI checks green on PR #16. CodeRabbit + Gemini follow-up review in progress on the fix commit. Branch protection on `main` is **live** (`enforce_admins: false`). Ready to squash-merge once bot follow-up lands with no new blockers.
 
 ## Goal
-Turn the scaffold into an actual quality gate — five harness-only fixes landing as one PR, then branch protection applied via `gh api`.
+Turn the scaffold into an actual quality gate. Five harness-only fixes + branch protection on `main`.
 
 ## Completed this session
-- Codex (gpt-5.4 high) reviewed the whole workbench; verdict was "No as-is" without hard gates.
-- Scoped the fix list to harness-only (forex-domain gaps explicitly deferred until the project starts).
-- Rewrote `.claude/hooks/update-paperwork.sh` — Stop hook now compares HANDOFF.md mtime to the last commit time instead of wall-clock. Confirmed working: it blocked this very session when commits landed without refreshing the handoff.
-- Added `.claude/hooks/session-start.sh` — injects HANDOFF.md + PROGRESS.md + recent commits into every new session.
-- Tightened `.claude/settings.json` deny list (--no-verify, force push anywhere, amends, resets, direct checkout of main, admin merges, branch-protection deletion).
-- Added `.github/workflows/pr-checklist.yml` — machine-checks PR body for placeholders and unticked checklists. Confirmed working on PR #16 (passed in 4s).
-- Pushed branch, opened PR #16 with full self-review filled in.
-- PR #16 status: `python`, `rust`, `checklist`, `gitleaks` all green; `CodeQL` and `CodeRabbit` pending; Gemini review pending.
+- Codex (gpt-5.4 high) review of the workbench — verdict was "No as-is" without hard gates.
+- Rewrote the Stop hook so it compares HANDOFF.md mtime to the last commit time. **Confirmed working** — blocked this very session when I committed without refreshing HANDOFF.md first.
+- Added SessionStart hook to inject HANDOFF.md + PROGRESS.md + recent commits at session open.
+- Tightened settings.json deny list: --no-verify, force push, amends, resets, direct `checkout main`, admin PR merges, branch-protection deletion.
+- Added pr-checklist CI workflow that fails on unreplaced placeholders or missing/empty checklists.
+- Addressed all five real issues flagged by CodeRabbit + Gemini on the first commit (2× security-rated deny-pattern bypasses, 1× checklist-workflow bypass, 2× shell-fragility, 1× unsafe heredoc).
+- **Branch protection live** on `main`: required checks python/rust/checklist/gitleaks, strict, linear history, no force-push, no delete, conversation resolution required. `enforce_admins: false` retained as emergency override per user decision.
 
 ## Not yet done
-- Apply branch protection on `main` via `gh api` — user chose `enforce_admins: false` (retain emergency override). Blocked pending execution.
-- Wait for CodeRabbit + Gemini review comments on PR #16; address anything they flag.
-- Squash-merge PR #16, delete local branch.
-- Tick "Branch protection applied" in PROGRESS.md after the `gh api` call succeeds.
+- Wait for CodeRabbit and Gemini to re-review commit `5183e55` (the fix commit).
+- If no new blockers, squash-merge PR #16 and delete the local + remote branch.
+- Start the first Freedom subsystem spec — data ingest is the natural first slice.
 
 ## Failed approaches — DON'T REPEAT
-- Shipping a Stop hook that only checked HANDOFF.md existed and was <60 min old — it never rewrote anything and let every post-first session silently drift. Anti-drift enforcement must compare handoff mtime to the last commit time, not the wall clock.
-- Relying on the PR template checklist as pure honour-system. Machine-check at least the placeholders.
+- Original Stop hook only checked HANDOFF.md was <60 min old and never rewrote anything. Caused drift from session 2 onward. Anti-drift enforcement must compare handoff mtime to the last commit time.
+- Honour-system PR checklist — skipped almost immediately. Machine-check placeholders and require at least one ticked box, with the section bounded between its heading and the next `##`.
+- `git push -f *` with a trailing space before `*` — left a bypass (matches `git push -f something` but not `git push -f`). Use `-f*` with no space.
+- `awk '{print $NF}'` on `git status --porcelain` — breaks on paths with spaces. Use `cut -c4-` for the fixed-width porcelain layout.
+- Parsing Claude Code hook JSON with `grep` — fragile across whitespace. Use `python -c json.load`.
+- Unquoted `EOF` heredocs in hooks — any `EOF` line in HANDOFF.md would terminate the heredoc early. Use a unique delimiter.
 
 ## Exact resume steps for next session
-1. Read this file and PROGRESS.md (the SessionStart hook will surface them automatically).
-2. If PR #16 isn't merged yet: check `gh pr status` and `gh pr checks 16`; address any CodeRabbit/Gemini comments; request squash-merge when green.
-3. After merge: run the branch-protection `gh api` call (JSON saved in the PR body); verify via `gh api repos/longytravel/freedom/branches/main/protection | head -30`; tick "Branch protection applied" in PROGRESS.md.
-4. Only then move to the first Freedom subsystem spec — data ingest is the natural first slice.
+1. Read this file and PROGRESS.md (SessionStart hook surfaces them automatically).
+2. If PR #16 isn't merged yet: `gh pr checks 16` — all four required checks must be green. Check `gh api repos/longytravel/freedom/pulls/16/comments` for any new CodeRabbit/Gemini comments on commit `5183e55`. Resolve or address, then squash-merge.
+3. After merge: `git checkout main && git pull && git branch -d feat/harden-workbench-hooks-and-protection` and `git push origin --delete feat/harden-workbench-hooks-and-protection`.
+4. Then start the first Freedom subsystem spec — data ingest is the natural first slice. Use `superpowers:brainstorming` first, then write the spec under `docs/superpowers/specs/`, then open a branch `feat/<issue>-data-ingest`.
