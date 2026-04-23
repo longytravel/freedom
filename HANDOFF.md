@@ -1,7 +1,7 @@
 # Handoff — 2026-04-23
 
-**Branch:** main
-**Status:** Fresh repo initialised; workbench design spec approved; executing setup.
+**Branch:** feat/10-swap-coderabbit-for-gemini
+**Status:** PR #11 in flight (the first real PR in this repo) — swapping CodeRabbit for Gemini Code Assist and exercising the full PR loop for the first time.
 
 ## Goal
 Set up the Freedom repo with PR-driven workflow, test-gated CI, auto-updated paperwork, and zero paid APIs.

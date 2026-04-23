@@ -11,7 +11,7 @@ This repo is built primarily by an AI agent (Claude Code) working in sessions wi
 5. **Pre-commit runs automatically** on every `git commit`. If it fails, fix and re-commit.
 6. **Self-review the diff** using the `code-review` skill. Paste output into the PR body.
 7. **Open the PR** with `gh pr create --fill`.
-8. **Wait for CI green** and the CodeRabbit advisory comment. Address anything concerning.
+8. **Wait for CI green** and the Gemini Code Assist advisory review comment. Address anything concerning.
 9. **Squash-merge** with `gh pr merge --squash --delete-branch`.
 
 ## Branch rules (enforced by GitHub)
