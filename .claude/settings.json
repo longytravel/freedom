@@ -12,13 +12,34 @@
       "Bash(pre-commit *)"
     ],
     "deny": [
-      "Bash(git push --force *main*)",
-      "Bash(git push -f *main*)",
+      "Bash(git push --force*)",
+      "Bash(git push -f *)",
+      "Bash(git push --no-verify*)",
+      "Bash(git commit --no-verify*)",
+      "Bash(git commit -n *)",
+      "Bash(git commit --amend*)",
+      "Bash(git reset --hard*)",
+      "Bash(git checkout main)",
+      "Bash(git switch main)",
+      "Bash(gh pr merge --admin*)",
+      "Bash(gh api*branches/main/protection*--method DELETE*)",
       "Bash(rm -rf /*)",
       "Bash(rm -rf ~*)"
     ]
   },
   "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "timeout": 10,
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/session-start.sh\""
+          }
+        ]
+      }
+    ],
     "PostToolUse": [
       {
         "matcher": "Write|Edit",

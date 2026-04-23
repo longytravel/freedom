@@ -6,12 +6,15 @@ Living checklist of milestones. Tick items as they ship.
 
 - [x] Repo initialised
 - [x] Development-workflow spec written (`docs/superpowers/specs/2026-04-23-dev-workflow-setup-design.md`)
-- [ ] Initial commit on main pushed
-- [ ] First CI run green
+- [x] Initial commit on main pushed
+- [x] First CI run green
 - [ ] Branch protection applied
 - [x] Gemini Code Assist installed (free, 33 reviews/day quota)
 - [x] CodeRabbit active on public repo (free forever for public repos)
 - [x] First real PR (#11) merged — full loop proved end-to-end
+- [ ] Stop hook actually blocks when HANDOFF.md is stale (was a no-op before)
+- [ ] SessionStart hook injects paperwork into every new session
+- [ ] PR-checklist CI job fails on empty placeholders / no ticked boxes
 
 ## Freedom platform — subsystems (future)
 
