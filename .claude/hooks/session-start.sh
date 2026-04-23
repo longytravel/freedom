@@ -4,11 +4,13 @@
 # not fire, the session drifts from the truth in git. Non-blocking.
 
 set -u
+export LANG=C.UTF-8 LC_ALL=C.UTF-8 2>/dev/null || true
 cd "${CLAUDE_PROJECT_DIR:-.}" 2>/dev/null || { echo '{}'; exit 0; }
 
 LOG=".claude/hooks/log.txt"
 mkdir -p .claude/hooks
-echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) session-start-hook fired" >> "$LOG" 2>/dev/null || true
+SRC="${CLAUDE_HOOK_SOURCE:-unknown}"
+echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) session-start-hook fired (source=${SRC})" >> "$LOG" 2>/dev/null || true
 
 HANDOFF_TEXT="_HANDOFF.md not found_"
 PROGRESS_TEXT="_PROGRESS.md not found_"
@@ -20,7 +22,7 @@ CURRENT_BRANCH=$(git branch --show-current 2>/dev/null || echo "_unknown_")
 STATUS=$(git status --short 2>/dev/null || echo "")
 
 CONTEXT=$(cat <<SESSION_START_EOF
-# Session start — paperwork snapshot
+# Session start -- paperwork snapshot
 
 **Current branch:** ${CURRENT_BRANCH}
 
