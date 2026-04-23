@@ -89,12 +89,13 @@ This testing taxonomy was absent from the research doc and expanded after a Code
 ### CI / PR automation (zero-cost stack)
 - **GitHub Actions** for all CI (free on public repos).
 - **Self-review via Claude Code skills** — before every `gh pr create`, I invoke the `code-review` skill on my own diff and paste the output into the PR body. Uses your Max subscription tokens, no extra bill.
-- **CodeRabbit AI (free tier)** — independent second-eye review, advisory only (not merge-blocking). Configured via `.coderabbit.yaml` at repo root. Free for public repos.
+- **CodeRabbit AI** — free forever on public repositories (full Pro features). Independent second-eye review, advisory only (not merge-blocking). Configured via `.coderabbit.yaml` at repo root.
+- **Gemini Code Assist (consumer)** — Google's free PR review agent, quota ~33 PRs/day (we never hit that). Installs as a GitHub App, no config file required. Third independent reviewer.
 - **Dependabot** for automated dependency update PRs.
 - **CodeQL** for free security scanning (public repo, GitHub-native).
-- **`gitleaks-action`** for secret scanning on every PR.
+- **`gitleaks-action`** for secret scanning on every PR (requires `GITHUB_TOKEN` env var).
 
-**Explicit note:** Self-review + CodeRabbit is NOT equivalent to the paid Claude Action. Self-review shares blind spots with the code-writing session; CodeRabbit free tier is not a senior-level reviewer. We compensate by making the **tests stronger** (see §2 Testing) and the **self-review checklist explicit** (see §5 CLAUDE.md). If we ever see PRs merge with bugs these catches miss, the escape hatch is enabling the paid Claude Action — one-line workflow change.
+**Explicit note:** Three layers of review cost nothing on a public repo: the self-review I run, CodeRabbit's independent review, and Gemini Code Assist's independent review. None is merge-blocking — the **mechanical gates** (tests, lint, type, security) are. The three reviews act as triage to surface things the tests didn't codify. If all three miss something, we add a test that would have caught it.
 
 ### Agent discipline (Claude Code — "Ring 1")
 - **Superpowers plugin stays enabled.** The `brainstorming`, `writing-plans`, `executing-plans`, `verification-before-completion`, `test-driven-development`, and `systematic-debugging` skills are the discipline layer.
@@ -416,7 +417,7 @@ Both jobs must pass for the PR to be mergeable (enforced by branch protection).
 
 ## 8. PR review — zero-cost approach
 
-No paid Claude Action. Two layers replace it:
+No paid Claude Action. Three layers replace it:
 
 ### 8a. Self-review checklist (primary — runs before every `gh pr create`)
 
@@ -436,9 +437,9 @@ Before opening any PR, I must run the `code-review` skill on the diff and paste 
 
 If any box is unchecked, I do not open the PR.
 
-### 8b. CodeRabbit AI (secondary — advisory only)
+### 8b. CodeRabbit AI (secondary — advisory)
 
-Free-tier CodeRabbit installed as a GitHub App on `longytravel/freedom`. It auto-reviews every PR and posts comments. **Advisory, not merge-blocking.** Catches things a second brain might spot. Configured via `.coderabbit.yaml`:
+Free-forever on public repositories. Auto-reviews every PR and posts comments. **Advisory, not merge-blocking.** Catches things a second brain might spot. Configured via `.coderabbit.yaml`:
 
 ```yaml
 language: en
@@ -455,9 +456,19 @@ chat:
   auto_reply: true
 ```
 
-### 8c. Kill-switch & upgrade path
+### 8c. Gemini Code Assist (tertiary — advisory)
 
-If we find PRs merging with bugs these two layers miss, enable the paid Claude Action later as `.github/workflows/claude-review.yml` — documented as a one-line change, not built today.
+Google's free PR review agent. Installed as a GitHub App on `longytravel/freedom`. Quota: 33 PR reviews per day (never hit in practice). **Advisory, not merge-blocking.** Posts an independent review comment on every PR, distinct from CodeRabbit's brain.
+
+No config file required for default behaviour. If per-repo customisation is wanted, a `.gemini/config.yaml` can be added.
+
+### 8d. Why three layers, all zero-cost
+
+On PR #11 (the first real PR in this repo), CodeRabbit and Gemini each flagged a real issue the self-review missed. The overlap is useful: one missing something doesn't mean all three miss it. Total cost remains zero.
+
+### 8e. Kill-switch & upgrade path
+
+If in future we find all three miss a specific bug class, the escape hatch is (a) add a targeted test category or property test, or (b) enable the paid Claude Action as `.github/workflows/claude-review.yml` — one-line workflow addition, not built today.
 
 ---
 
