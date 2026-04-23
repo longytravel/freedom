@@ -1,51 +1,62 @@
-# Handoff — 2026-04-23 13:25Z
+# Handoff — 2026-04-23 13:50Z
 
 **Branch:** feat/harden-workbench-hooks-and-protection
-**Status:** PR #16 open; SessionStart hook hardened after it silently failed to fire on a `/clear` event.
+**Status:** PR #16 open. CI is fully green; the merge is currently blocked by GitHub branch protection requiring all review threads to be resolved. Last unresolved findings are being closed out in commit `(this commit)`.
 
 ## Goal
-Finish PR #16 (workbench hook + branch-protection hardening). The branch has been live-tested end-to-end; merge gates are green CI plus advisory re-reviews from both CodeRabbit and Gemini Code Assist, then squash-merge. During this session a real-world test of the SessionStart hook uncovered that it was not firing on `/clear` and was producing mojibake even when it did. Both bugs are now fixed on this same branch.
+Squash-merge PR #16 (workbench hook + branch-protection hardening). All hard
+quality gates already pass. The only remaining work is administrative —
+resolve the open review threads so the protection rule lets the merge through.
 
 ## Completed this session
-- Confirmed SessionStart hook did not fire on `/clear` (log had no entry; the `SessionStart:clear hook success` JSON in the session context came from a plugin hook, not ours).
-- Verified the script itself is correct — runs manually and emits valid JSON with HANDOFF + PROGRESS + git state (6.4 KB).
-- Replaced the empty-string matcher with an explicit `startup|resume|clear|compact` matcher so the clear case cannot be silently skipped.
-- Forced `C.UTF-8` locale inside the hook so em-dashes stop rendering as `â€"` mojibake.
-- Added a source-tag to the hook log line so any future silent-skip is diagnosable.
-- Committed as `2a41638` on the current branch.
+- Tightened deny patterns in `.claude/settings.json` so reordered flags can no
+  longer bypass the guardrail (e.g. `git push origin --force`,
+  `git checkout -q main`).
+- Fixed HANDOFF.md MD040 fence and the merge-gate sentence.
+- Added a `python` → `python3` fallback in `update-paperwork.sh` to match the
+  pattern in `session-start.sh` (was a CodeRabbit major finding).
+- Pushed `0288c19` and `4044e22`; CodeRabbit status check on `4044e22` is
+  SUCCESS.
 
 ## Not yet done
-- Push `2a41638` to the PR branch so PR #16 picks it up.
-- Wait for CI green on PR #16 (required checks: python / rust / checklist / gitleaks).
-- Wait for CodeRabbit re-review; address any findings.
-- Wait for Gemini Code Assist; address any findings.
+- Commit and push the `python3` fallback in `update-paperwork.sh`.
+- Resolve the 4 outdated and 2 already-addressed review threads via
+  `gh api graphql` so branch protection unblocks the merge.
 - Squash-merge PR #16 and delete the branch.
-- Confirm in a *real* next session that `/clear` now injects the paperwork snapshot — that is the only proof the fix works.
+- After merge: `git switch main && git pull`, then **stop**. No new feature
+  work without a brainstorming session.
 
 ## Failed approaches — DON'T REPEAT
-- `"matcher": ""` on the SessionStart hook. Per Claude Code docs empty should match all sources, but in practice on this Windows setup it was not firing on `/clear`. Always use an explicit `startup|resume|clear|compact` string.
-- Reading HANDOFF.md / PROGRESS.md in the agent via "hope the user tells me" rather than hook injection. The whole point of the hook is that the agent starts blind otherwise — do not fall back to asking the user.
+- Trying to merge with `--admin`. The deny list now blocks it (and the user
+  doesn't want admin-overrides anyway — that defeats the harness).
+- Exact-string deny entries like `Bash(git push --force*)`. Always use
+  `*--flag*` style globs that tolerate reordered tokens.
+- Empty `"matcher": ""` on the SessionStart hook. Always use an explicit
+  `startup|resume|clear|compact` matcher.
 
 ## Exact resume steps for next session
-1. Read HANDOFF.md (this file — injected by the SessionStart hook) and PROGRESS.md. If you didn't receive them automatically, the hook fix has regressed — check `.claude/hooks/log.txt` for a `session-start-hook fired (source=...)` line dated in the last minute.
-2. `git status` to confirm clean tree on `feat/harden-workbench-hooks-and-protection`.
-3. `git push` to publish `2a41638` to the PR #16 branch.
-4. `gh pr view 16 --json statusCheckRollup,reviewDecision,mergeable` to see required-check state and reviewer state.
-5. If CI is green and both reviewers are happy, squash-merge with `gh pr merge 16 --squash --delete-branch`. If not, address blockers, commit, push, loop.
-6. After merge, `git switch main && git pull` and stop — no new feature work without a brainstorming session.
+1. Read HANDOFF.md and PROGRESS.md (injected automatically by the
+   SessionStart hook).
+2. `git status` to confirm clean tree on the same branch.
+3. `gh pr view 16 --json statusCheckRollup,reviewDecision,mergeable` —
+   confirm CI green and `mergeable_state` is no longer `blocked`.
+4. If still blocked, list unresolved threads with the GraphQL query in
+   the previous session's commit messages and resolve any that no longer
+   apply.
+5. Squash-merge with `gh pr merge 16 --squash --delete-branch`.
+6. `git switch main && git pull`, then stop.
 
 ---
 ### Autogenerated context
-**Uncommitted changes:** *(clean)*
+**Uncommitted changes:** *(see latest commit)*
 **Recent commits:**
 ```text
+4044e22 fix(workbench): block 'git checkout/switch main' variants
+0288c19 fix(workbench): harden deny patterns and HANDOFF docs
+b51c2e9 chore(workbench): refresh HANDOFF for next session
 2a41638 fix(hooks): make SessionStart explicit + UTF-8 clean
 eb13a3d fix(workbench): Stop hook false-positives on commit-time vs mtime
 3fad185 chore(workbench): record branch-protection live + tick PROGRESS milestones
 5183e55 fix(workbench): address CodeRabbit + Gemini review on PR #16
 dce0afa feat(workbench): harden hooks, deny list, and PR checklist
-7db1a06 docs: remove stray 'Fire Forex' references (#15)
-f820533 docs: re-add CodeRabbit as an active reviewer (#13)
-a345539 chore: swap CodeRabbit for Gemini Code Assist (#11)
-373cedb chore: initial workbench setup
 ```

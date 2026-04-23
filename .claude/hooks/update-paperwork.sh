@@ -14,10 +14,19 @@ echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) stop-hook fired" >> "$LOG" 2>/dev/null || t
 # Read stdin (JSON from Claude Code). If stop_hook_active is true we are
 # already in a continuation loop — allow stop to avoid infinite re-entry.
 # Use Python for robust JSON parsing; grep on JSON is fragile across whitespace
-# and nesting.
+# and nesting. Fall back to python3 on systems where the unversioned binary
+# is missing (matches the session-start.sh pattern).
 INPUT=$(cat 2>/dev/null || echo '{}')
+if command -v python >/dev/null 2>&1; then
+  PY=python
+elif command -v python3 >/dev/null 2>&1; then
+  PY=python3
+else
+  PY=""
+fi
 is_reentry() {
-  printf '%s' "$INPUT" | python -c 'import json,sys
+  [ -z "$PY" ] && return 1
+  printf '%s' "$INPUT" | "$PY" -c 'import json,sys
 try:
     sys.exit(0 if json.load(sys.stdin).get("stop_hook_active") else 1)
 except Exception:
