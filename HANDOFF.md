@@ -1,7 +1,7 @@
 # Handoff — 2026-04-23
 
-**Branch:** feat/12-re-add-coderabbit
-**Status:** PR #12 in flight — re-adding CodeRabbit config and documenting the two-reviewer setup (CodeRabbit + Gemini) as the official review layer.
+**Branch:** feat/14-rename-fire-forex-to-freedom
+**Status:** PR #14 in flight — removing stray "Fire Forex" references from the paperwork. The project is **Freedom**; "Fire Forex" was the abandoned attempt.
 
 ## Goal
 Set up the Freedom repo with PR-driven workflow, test-gated CI, auto-updated paperwork, and zero paid APIs.
@@ -15,7 +15,7 @@ Set up the Freedom repo with PR-driven workflow, test-gated CI, auto-updated pap
 ## Not yet done
 - Merge PR #12 (this PR — re-adds CodeRabbit config + updates paperwork).
 - Decide on the four waiting Dependabot PRs.
-- Write the first Fire Forex spec (suggested starting point: data ingest).
+- Write the first Freedom subsystem spec (suggested starting point: data ingest).
 
 ## Failed approaches — DON'T REPEAT
 - Previous Freedom rebuild attempts shipped silent bugs because only unit tests existed and there was no PR discipline. The 5-category test taxonomy + branch protection + self-review checklist is the fix.
@@ -24,4 +24,4 @@ Set up the Freedom repo with PR-driven workflow, test-gated CI, auto-updated pap
 ## Exact resume steps for next session
 1. Read this file, `PROGRESS.md`, and the spec in `docs/superpowers/specs/`.
 2. Continue from whichever phase is next in `PROGRESS.md`.
-3. If everything in Workbench is ticked: start the first Fire Forex spec (data ingest is the natural first slice).
+3. If everything in Workbench is ticked: start the first Freedom subsystem spec (data ingest is the natural first slice).
