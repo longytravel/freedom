@@ -13,7 +13,7 @@ Living checklist of milestones. Tick items as they ship.
 - [x] CodeRabbit active on public repo (free forever for public repos)
 - [x] First real PR (#11) merged — full loop proved end-to-end
 
-## Fire Forex — Product (future)
+## Freedom platform — subsystems (future)
 
 Each line below is a placeholder for a future spec + implementation cycle.
 

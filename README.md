@@ -8,7 +8,7 @@ A disciplined development workbench for building a forex backtest / live trading
 
 ## Status
 
-Workbench live. Fire Forex product specs begin next.
+Workbench live. Freedom subsystem specs begin next.
 
 ## Layout
 

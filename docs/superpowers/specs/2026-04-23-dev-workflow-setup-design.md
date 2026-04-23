@@ -3,7 +3,7 @@
 **Date:** 2026-04-23
 **Author:** Claude (Opus 4.7), for longytravel@gmail.com
 **Status:** Draft — awaiting user review
-**Scope:** How we work in this repo. *Not* the Fire Forex product itself.
+**Scope:** How we work in this repo. *Not* the Freedom platform itself.
 
 ---
 
@@ -45,7 +45,7 @@ No external paid API is used anywhere in this flow. Everything runs on your Max 
 
 If *anything* fails — a test, a type check, the other Claude flags a concern — the merge button is **physically disabled** by GitHub. You cannot merge broken code even if you want to.
 
-**Explicit non-goals:** This setup does NOT include any Fire Forex product code. Those nine subsystems (data, strategies, backtest, optimisation, validation, UI, deployment, monitoring, research) are each a future spec. This spec sets up the factory; the product comes later.
+**Explicit non-goals:** This setup does NOT include any Freedom platform code. Those nine subsystems (data, strategies, backtest, optimisation, validation, UI, deployment, monitoring, research) are each a future spec. This spec sets up the factory; the platform itself comes later.
 
 ---
 
@@ -110,8 +110,8 @@ This testing taxonomy was absent from the research doc and expanded after a Code
 ### What is deliberately *not* included (YAGNI)
 - **`pyo3`/`maturin` Rust↔Python bindings.** Added in the PR that ships the first cross-language function, not before.
 - **Docker / testcontainers.** Not needed for solo backtest work.
-- **Web UI / frontend.** Part of future Fire Forex spec, not this one.
-- **VPS / live runner.** Part of future Fire Forex deployment spec.
+- **Web UI / frontend.** Part of a future Freedom subsystem spec, not this one.
+- **VPS / live runner.** Part of a future Freedom deployment spec.
 - **Memory MCPs (Mem0, Zep), Spec Kit, Sequential Thinking MCP.** Research explicitly calls these redundant with Claude Code v2.1 native features. Keeping `claude-mem` installed (already on).
 - **Multiple PR review bots (CodeRabbit etc.).** One bot (Claude) is enough. Add others only if we hit a specific gap.
 
@@ -500,7 +500,7 @@ Configured via `gh api -X PUT repos/longytravel/freedom/branches/main/protection
 3. **Apply branch protection** via `gh api` using those real check names. From this point on, `main` is locked.
 4. **PR #1 — throwaway "verify PR loop"** — trivial README subtitle change. Purpose: prove the full PR loop end-to-end: self-review posts to PR body, CodeRabbit posts an advisory comment, every CI check is green, squash-merge works, branch is auto-deleted.
 
-After PR #1 merges, the workbench is complete and the Fire Forex subsystem specs begin. Everything else mentioned in this design — Stop hook, paperwork automation, CodeRabbit config, Dependabot, CodeQL, gitleaks, release-please workflow, all test placeholders, ADR template, CONTRIBUTING.md — all lands in the **initial commit**, not in later PRs. A single batched setup is cleaner than splitting mechanical setup across five artificial PRs.
+After PR #1 merges, the workbench is complete and the Freedom subsystem specs begin. Everything else mentioned in this design — Stop hook, paperwork automation, CodeRabbit config, Dependabot, CodeQL, gitleaks, release-please workflow, all test placeholders, ADR template, CONTRIBUTING.md — all lands in the **initial commit**, not in later PRs. A single batched setup is cleaner than splitting mechanical setup across five artificial PRs.
 
 ---
 
