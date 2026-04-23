@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  python:
+    name: python
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v4
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: uv sync --all-groups
+      - name: Ruff lint
+        run: uv run ruff check .
+      - name: Ruff format check
+        run: uv run ruff format --check .
+      - name: Type check
+        run: uv run mypy src
+      - name: Unit tests
+        run: uv run pytest tests/unit/ -v
+      - name: Property tests (fixed seed)
+        run: uv run pytest tests/property/ --hypothesis-seed=0
+      - name: Reference / parity tests
+        run: uv run pytest tests/reference/
+      - name: Metamorphic tests
+        run: uv run pytest tests/metamorphic/
+      - name: Integration tests
+        run: uv run pytest tests/integration/ -m integration
+
+  rust:
+    name: rust
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: core
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - name: Rustfmt check
+        run: cargo fmt --check
+      - name: Clippy
+        run: cargo clippy --all-targets -- -D warnings
+      - name: Test
+        run: cargo test --all-targets

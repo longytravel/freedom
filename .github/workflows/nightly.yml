@@ -1,0 +1,20 @@
+name: Nightly property tests
+
+on:
+  schedule:
+    - cron: "0 3 * * *"  # 03:00 UTC daily
+  workflow_dispatch:
+
+jobs:
+  randomised-hypothesis:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v4
+        with:
+          python-version: "3.12"
+      - run: uv sync --all-groups
+      - name: Property tests with randomised seed
+        run: uv run pytest tests/property/ --hypothesis-seed=random
+      - name: Metamorphic tests with randomised seed
+        run: uv run pytest tests/metamorphic/ --hypothesis-seed=random

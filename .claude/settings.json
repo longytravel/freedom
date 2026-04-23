@@ -1,0 +1,46 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(uv *)",
+      "Bash(gh *)",
+      "Bash(git *)",
+      "Bash(cargo *)",
+      "Bash(rustfmt *)",
+      "Bash(clippy *)",
+      "Bash(pytest *)",
+      "Bash(python *)",
+      "Bash(pre-commit *)"
+    ],
+    "deny": [
+      "Bash(git push --force *main*)",
+      "Bash(git push -f *main*)",
+      "Bash(rm -rf /*)",
+      "Bash(rm -rf ~*)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/format-on-edit.sh\" || true"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "timeout": 5,
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/update-paperwork.sh\""
+          }
+        ]
+      }
+    ]
+  }
+}

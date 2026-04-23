@@ -1,0 +1,48 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.eggs/
+dist/
+build/
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
+.coverage
+htmlcov/
+coverage.xml
+.tox/
+
+# Rust
+target/
+Cargo.lock
+**/*.rs.bk
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Claude Code — local-only overrides
+.claude/settings.local.json
+.claude/hooks/log.txt
+
+# Large docs / scratch
+/Claude Code CLI Workflow Optimization.md
+/compass_artifact_*.md
