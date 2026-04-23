@@ -1,21 +1,21 @@
 # Handoff — 2026-04-23
 
-**Branch:** feat/10-swap-coderabbit-for-gemini
-**Status:** PR #11 in flight (the first real PR in this repo) — swapping CodeRabbit for Gemini Code Assist and exercising the full PR loop for the first time.
+**Branch:** feat/12-re-add-coderabbit
+**Status:** PR #12 in flight — re-adding CodeRabbit config and documenting the two-reviewer setup (CodeRabbit + Gemini) as the official review layer.
 
 ## Goal
 Set up the Freedom repo with PR-driven workflow, test-gated CI, auto-updated paperwork, and zero paid APIs.
 
 ## Completed
-- Development-workflow spec written and approved (`docs/superpowers/specs/2026-04-23-dev-workflow-setup-design.md`).
-- Codex second-opinion incorporated (5 test categories, path-scoped rules, `docs/adr/`).
-- All repo files being created locally (Phase A).
+- Workbench spec written, Codex-reviewed, and landed in the initial commit.
+- Five phases A–E complete: files, local verification, push, branch protection, throwaway PR proved the loop.
+- PR #11 merged — CodeRabbit and Gemini each caught real issues I missed; both fixes landed before merge.
+- Two AI reviewers active (CodeRabbit free-for-public + Gemini Code Assist free-tier) plus CI gates.
 
 ## Not yet done
-- Phase B: `uv sync`, run tests locally to confirm green.
-- Phase C: `git init`, first commit, push to `longytravel/freedom` main.
-- Phase D: wait for first CI run, apply branch protection, install CodeRabbit.
-- Phase E: throwaway PR #1 to prove the loop.
+- Merge PR #12 (this PR — re-adds CodeRabbit config + updates paperwork).
+- Decide on the four waiting Dependabot PRs.
+- Write the first Fire Forex spec (suggested starting point: data ingest).
 
 ## Failed approaches — DON'T REPEAT
 - Previous Freedom rebuild attempts shipped silent bugs because only unit tests existed and there was no PR discipline. The 5-category test taxonomy + branch protection + self-review checklist is the fix.
