@@ -1,0 +1,44 @@
+name: PR checklist
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened, ready_for_review]
+
+jobs:
+  checklist:
+    name: checklist
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    steps:
+      - name: Validate PR body
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = context.payload.pull_request.body || "";
+            const problems = [];
+
+            // Placeholder comments must be replaced.
+            if (body.includes("<!-- Plain-English description of what this PR changes. -->")) {
+              problems.push("Summary placeholder was not replaced with a plain-English description.");
+            }
+            if (body.includes("<!-- Paste skill output here. -->")) {
+              problems.push("Code-review skill output was not pasted into the PR body.");
+            }
+
+            // Bound the section strictly between its heading and the next ## heading
+            // so trailing content (e.g., the code-review output section) cannot inflate counts.
+            const afterHeading = body.split(/^##\s+Self-review checklist\s*$/m)[1] || "";
+            const section = afterHeading.split(/^##\s+/m)[0] || "";
+            const total = (section.match(/^\s*-\s*\[[ xX]\]/gm) || []).length;
+            const checked = (section.match(/^\s*-\s*\[[xX]\]/gm) || []).length;
+            if (total === 0) {
+              problems.push("Self-review checklist section is missing or empty — cannot merge without it.");
+            } else if (checked === 0) {
+              problems.push(`Self-review checklist has ${total} items but none are ticked. Work through the list before requesting review.`);
+            }
+
+            if (problems.length > 0) {
+              core.setFailed("PR body is incomplete:\n- " + problems.join("\n- "));
+            } else {
+              core.info(`PR body OK. Checklist: ${checked}/${total} ticked.`);
+            }
